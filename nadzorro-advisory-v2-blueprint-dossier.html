@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="uk" data-lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NADZORRO ADVISORY — Independent Engineering Advisor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700;8..60,900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3efe2;
+    --paper-2:#ece5d2;
+    --panel:#ebe4d2;
+    --ink:#1c1b17;
+    --ink-dim:#5b5648;
+    --ink-faint:#8d8770;
+    --blue:#2c4a6e;
+    --blue-deep:#1c3650;
+    --blue-soft:rgba(44,74,110,.08);
+    --red:#9c3b2c;
+    --line:#cdc4a8;
+    --line-strong:#b7ac88;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:16px;
+    line-height:1.6;
+  }
+  [data-lang="uk"] .en{display:none !important;}
+  [data-lang="en"] .uk{display:none !important;}
+  h1,h2,h3,h4{font-family:'Source Serif 4',serif; font-weight:700; letter-spacing:-.01em; line-height:1.1; color:var(--ink);}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 32px; position:relative;}
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  ::selection{background:var(--blue); color:var(--paper);}
+
+  /* blueprint grid texture */
+  .grid-bg{
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:8px 8px, 8px 8px;
+    opacity:.35;
+  }
+  .grid-bg::after{
+    content:''; position:absolute; inset:0;
+    background-image:
+      linear-gradient(var(--line-strong) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-strong) 1px, transparent 1px);
+    background-size:64px 64px;
+    opacity:.5;
+  }
+
+  /* registration marks — signature element */
+  .reg{position:relative;}
+  .reg::before,.reg::after,.reg .rc1,.reg .rc2{content:''; position:absolute; width:18px; height:18px; z-index:2;}
+  .reg::before{top:-1px; left:-1px; border-top:1.5px solid var(--blue); border-left:1.5px solid var(--blue);}
+  .reg::after{bottom:-1px; right:-1px; border-bottom:1.5px solid var(--blue); border-right:1.5px solid var(--blue);}
+  .reg .rc1{top:-1px; right:-1px; border-top:1.5px solid var(--blue); border-right:1.5px solid var(--blue);}
+  .reg .rc2{bottom:-1px; left:-1px; border-bottom:1.5px solid var(--blue); border-left:1.5px solid var(--blue);}
+
+  /* NAV */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(243,239,226,.92); backdrop-filter:blur(8px);
+    border-bottom:1.5px solid var(--ink);
+  }
+  .navrow{display:flex; align-items:center; justify-content:space-between; height:76px; gap:24px;}
+  .logo{font-family:'Source Serif 4',serif; font-size:19px; font-weight:700; letter-spacing:.01em;}
+  .logo .stamp-dot{display:inline-block; width:7px; height:7px; background:var(--red); border-radius:50%; margin-left:6px; vertical-align:middle;}
+  nav.links{display:flex; gap:26px; font-size:12.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-dim); font-family:'IBM Plex Mono',monospace;}
+  nav.links a:hover{color:var(--blue);}
+  .nav-right{display:flex; align-items:center; gap:16px;}
+  .lang-btn{
+    border:1.5px solid var(--ink); background:transparent; color:var(--ink);
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.06em;
+    padding:7px 12px; cursor:pointer;
+  }
+  .lang-btn:hover{background:var(--ink); color:var(--paper);}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--blue); color:var(--paper); font-weight:600; font-size:13px;
+    letter-spacing:.02em; font-family:'IBM Plex Mono',monospace;
+    padding:13px 24px; border:1.5px solid var(--blue);
+    transition:.2s;
+  }
+  .btn:hover{background:var(--paper); color:var(--blue);}
+  .btn-ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--ink); }
+  .btn-ghost:hover{background:var(--ink); color:var(--paper);}
+  @media(max-width:880px){ nav.links{display:none;} }
+
+  section{position:relative; z-index:1; padding:100px 0;}
+  section.tight{padding:72px 0;}
+  .file-id{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--blue); display:flex; align-items:center; gap:10px; margin-bottom:20px;
+  }
+  .file-id .dash{width:24px; height:1px; background:var(--blue);}
+  .lead{color:var(--ink-dim); font-size:18px; max-width:640px; line-height:1.7;}
+  .divider{height:1.5px; background:var(--ink); width:100%;}
+  .hairline{height:1px; background:var(--line-strong); width:100%;}
+
+  /* STAMP component */
+  .stamp{
+    display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+    width:108px; height:108px; border:2px solid var(--red); border-radius:50%;
+    transform:rotate(-8deg); color:var(--red); font-family:'IBM Plex Mono',monospace;
+    font-size:10px; letter-spacing:.06em; text-align:center; line-height:1.4; padding:8px;
+  }
+
+  /* HERO */
+  .hero{padding-top:96px; padding-bottom:80px;}
+  .hero-top{display:flex; justify-content:space-between; align-items:flex-start; gap:40px; flex-wrap:wrap;}
+  .hero h1{font-size:clamp(36px,5.2vw,64px); font-weight:700; max-width:820px;}
+  .hero h1 em{font-style:italic; color:var(--blue); font-weight:400;}
+  .hero-sub{margin-top:24px; font-size:18px; color:var(--ink-dim); max-width:620px; line-height:1.7;}
+  .hero-cta{margin-top:38px; display:flex; gap:14px; flex-wrap:wrap;}
+  .blueprint-panel{
+    margin-top:64px; border:1.5px solid var(--ink); background:var(--blue-soft);
+    padding:32px; display:grid; grid-template-columns:repeat(4,1fr); gap:0;
+  }
+  .blueprint-panel .bp-item{padding:0 24px; border-left:1px solid var(--line-strong);}
+  .blueprint-panel .bp-item:first-child{border-left:none; padding-left:0;}
+  .blueprint-panel .bp-val{font-family:'IBM Plex Mono',monospace; font-size:26px; color:var(--blue); font-weight:600;}
+  .blueprint-panel .bp-label{font-size:11.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.04em; margin-top:6px;}
+  @media(max-width:880px){ .blueprint-panel{grid-template-columns:1fr 1fr; gap:24px;} .blueprint-panel .bp-item{border-left:none; padding:0;} }
+  @media(max-width:560px){ .blueprint-panel{grid-template-columns:1fr;} }
+
+  /* DIRECTIONS */
+  .card-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:44px;}
+  .dcard{border:1.5px solid var(--ink); padding:28px 22px; background:var(--paper); position:relative;}
+  .dcard .num{font-family:'IBM Plex Mono',monospace; color:var(--blue); font-size:12px;}
+  .dcard h3{font-size:18px; margin-top:16px; margin-bottom:12px;}
+  .dcard p{font-size:14px; color:var(--ink-dim); line-height:1.6;}
+  @media(max-width:880px){ .card-grid{grid-template-columns:1fr 1fr;} }
+  @media(max-width:560px){ .card-grid{grid-template-columns:1fr;} }
+
+  /* WHY */
+  .split{display:grid; grid-template-columns:1fr 1fr; gap:64px;}
+  .split blockquote{font-family:'Source Serif 4',serif; font-size:24px; font-weight:600; line-height:1.5; color:var(--ink); border-left:3px solid var(--blue); padding-left:26px;}
+  .bullets{margin-top:26px; display:flex; flex-direction:column; gap:0;}
+  .bullets li{list-style:none; display:flex; gap:14px; align-items:flex-start; font-size:14.5px; color:var(--ink-dim); padding:12px 0; border-top:1px solid var(--line-strong);}
+  .bullets li .tick{font-family:'IBM Plex Mono',monospace; color:var(--blue); flex-shrink:0;}
+  @media(max-width:880px){ .split{grid-template-columns:1fr;} }
+
+  /* TABLE */
+  table{width:100%; border-collapse:collapse; margin-top:36px; border:1.5px solid var(--ink);}
+  th{font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--paper); background:var(--ink); text-align:left; padding:14px 16px;}
+  td{padding:20px 16px; border-bottom:1px solid var(--line-strong); border-right:1px solid var(--line-strong); font-size:14px; color:var(--ink-dim); vertical-align:top;}
+  td:last-child{border-right:none;}
+  td.invest{color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:600;}
+  td strong{color:var(--ink); font-weight:700;}
+  @media(max-width:780px){ table, thead, tbody, th, td, tr{display:block;} thead{display:none;} td{border:none; padding:6px 0;} tr{padding:18px 0; border-bottom:1.5px solid var(--ink);} td.invest{font-size:17px; padding-top:14px;} }
+
+  /* PROCESS */
+  .process-row{display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:50px; border-top:1.5px solid var(--ink); border-left:1.5px solid var(--ink);}
+  .pstep{padding:26px 22px; border-right:1.5px solid var(--ink); border-bottom:1.5px solid var(--ink);}
+  .pstep .pnum{font-family:'IBM Plex Mono',monospace; color:var(--blue); font-size:13px; display:block; margin-bottom:12px;}
+  .pstep h4{font-size:16px; margin-bottom:10px;}
+  .pstep p{font-size:13.5px; color:var(--ink-dim);}
+  @media(max-width:880px){ .process-row{grid-template-columns:1fr 1fr;} }
+  @media(max-width:560px){ .process-row{grid-template-columns:1fr;} }
+
+  /* QUOTE */
+  .quote-section{text-align:center; padding:120px 0; background:var(--ink); color:var(--paper);}
+  .quote-section blockquote{font-family:'Source Serif 4',serif; font-style:italic; font-weight:400; font-size:clamp(22px,3.2vw,36px); max-width:860px; margin:0 auto; line-height:1.5;}
+  .quote-section cite{display:block; margin-top:26px; font-style:normal; font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.06em; color:#c9a13b;}
+
+  /* ABOUT */
+  .about-top{display:grid; grid-template-columns:.8fr 1.2fr; gap:56px; align-items:start;}
+  .photo-block{aspect-ratio:3/4; background:var(--panel); border:1.5px solid var(--ink); display:flex; align-items:center; justify-content:center; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace; font-size:12px; text-align:center; padding:20px; position:relative;}
+  .about-name{font-size:13px; letter-spacing:.05em; color:var(--blue); text-transform:uppercase; margin-bottom:8px; font-family:'IBM Plex Mono',monospace;}
+  .pull{font-family:'Source Serif 4',serif; font-size:21px; font-weight:600; color:var(--ink); line-height:1.5; margin:24px 0;}
+  .timeline{margin-top:32px; border-top:1.5px solid var(--ink);}
+  .trow{display:grid; grid-template-columns:90px 1fr; gap:18px; padding:16px 0; border-bottom:1px solid var(--line-strong);}
+  .trow .yr{font-family:'IBM Plex Mono',monospace; color:var(--blue); font-size:14px; font-weight:600;}
+  .trow p{font-size:14px; color:var(--ink-dim);}
+  @media(max-width:880px){ .about-top{grid-template-columns:1fr;} .photo-block{aspect-ratio:16/9;} }
+
+  .core-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:60px;}
+  .core-card{border:1.5px solid var(--ink); padding:32px; background:var(--paper);}
+  .core-card h4{font-size:16px; color:var(--blue); margin-bottom:10px;}
+  .core-card p{font-size:13.5px; color:var(--ink-dim); line-height:1.65;}
+  @media(max-width:780px){ .core-grid{grid-template-columns:1fr;} }
+
+  /* CODEX */
+  .codex-top{text-align:center; max-width:780px; margin:0 auto 8px;}
+  .codex-top blockquote{font-family:'Source Serif 4',serif; font-weight:700; font-size:27px; color:var(--ink); line-height:1.5;}
+  .codex-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:0; margin-top:48px; border-top:1.5px solid var(--ink); border-left:1.5px solid var(--ink);}
+  .ccard{padding:26px 20px; border-right:1.5px solid var(--ink); border-bottom:1.5px solid var(--ink); min-height:230px; background:var(--paper);}
+  .ccard .ctag{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.04em; color:var(--red); text-transform:uppercase;}
+  .ccard h4{font-size:15px; margin:12px 0 10px; line-height:1.3;}
+  .ccard p{font-size:12.5px; color:var(--ink-dim); line-height:1.55;}
+  @media(max-width:980px){ .codex-grid{grid-template-columns:1fr 1fr;} }
+  @media(max-width:560px){ .codex-grid{grid-template-columns:1fr;} }
+
+  /* ADVISORY */
+  details.stage{border-top:1px solid var(--line-strong); padding:20px 0;}
+  details.stage:last-of-type{border-bottom:1px solid var(--line-strong);}
+  details.stage summary{cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; font-family:'Source Serif 4',serif; font-weight:700; font-size:20px; color:var(--ink);}
+  details.stage summary::-webkit-details-marker{display:none;}
+  details.stage summary .plus{font-family:'IBM Plex Mono',monospace; color:var(--blue); font-size:18px;}
+  details.stage[open] summary .plus{transform:rotate(45deg); display:inline-block;}
+  details.stage .stage-body{margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:8px 36px;}
+  details.stage .stage-body li{list-style:none; font-size:13.5px; color:var(--ink-dim); padding:8px 0; border-top:1px dashed var(--line-strong);}
+  @media(max-width:700px){ details.stage .stage-body{grid-template-columns:1fr;} details.stage summary{font-size:17px;} }
+
+  .clients{margin-top:60px;}
+  .clients .label{font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:18px; font-family:'IBM Plex Mono',monospace;}
+  .client-row{display:flex; flex-wrap:wrap; gap:0; border-top:1px solid var(--ink); border-left:1px solid var(--ink);}
+  .chip{border-right:1px solid var(--ink); border-bottom:1px solid var(--ink); padding:12px 20px; font-size:13px; color:var(--ink-dim);}
+
+  /* TDD */
+  .tdd-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-top:44px;}
+  .tcard{border:1.5px solid var(--ink); padding:28px; background:var(--paper);}
+  .tcard .tnum{font-family:'IBM Plex Mono',monospace; color:var(--blue); font-size:12px;}
+  .tcard h4{font-size:16px; margin:12px 0 10px;}
+  .tcard p{font-size:13px; color:var(--ink-dim); line-height:1.6;}
+  @media(max-width:880px){ .tdd-grid{grid-template-columns:1fr;} }
+
+  .callout{background:var(--blue); color:var(--paper); border:1.5px solid var(--ink); padding:34px; margin-top:44px; display:grid; grid-template-columns:auto 1fr; gap:24px; align-items:center;}
+  .callout .big{font-family:'IBM Plex Mono',monospace; font-size:46px; font-weight:600;}
+  .callout p{font-size:14px; line-height:1.65; opacity:.92;}
+  @media(max-width:600px){ .callout{grid-template-columns:1fr;} }
+
+  /* TOOLS */
+  .tools-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:44px;}
+  .tool-card{border:1.5px solid var(--ink); padding:28px; background:var(--paper);}
+  .tool-card .code{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--blue); letter-spacing:.03em; font-weight:600;}
+  .tool-card h4{font-size:17px; margin:14px 0 10px;}
+  .tool-card p{font-size:13px; color:var(--ink-dim); line-height:1.65;}
+  @media(max-width:880px){ .tools-grid{grid-template-columns:1fr;} }
+
+  /* CASES */
+  .case-card{display:grid; grid-template-columns:.75fr 1.25fr; gap:44px; padding:44px 0; border-top:1.5px solid var(--ink);}
+  .case-card:last-child{border-bottom:1.5px solid var(--ink);}
+  .case-meta{display:flex; flex-direction:column; gap:10px;}
+  .case-meta .tag{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--blue); text-transform:uppercase; letter-spacing:.05em;}
+  .case-meta h3{font-size:24px; margin:8px 0 12px;}
+  .case-meta .facts{margin-top:14px; font-size:13px; color:var(--ink-dim); display:flex; flex-direction:column; gap:6px; font-family:'IBM Plex Mono',monospace;}
+  .case-body p{font-size:14px; color:var(--ink-dim); margin-bottom:14px; line-height:1.7;}
+  .case-body strong{color:var(--ink);}
+  @media(max-width:880px){ .case-card{grid-template-columns:1fr;} }
+
+  .mini-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:0; margin-top:50px; border-top:1.5px solid var(--ink); border-left:1.5px solid var(--ink);}
+  .mini{padding:20px 16px; min-height:140px; border-right:1.5px solid var(--ink); border-bottom:1.5px solid var(--ink); background:var(--paper);}
+  .mini h5{font-size:13.5px; margin-bottom:8px; font-family:'IBM Plex Mono',monospace; color:var(--blue);}
+  .mini p{font-size:12px; color:var(--ink-dim); line-height:1.5;}
+  @media(max-width:980px){ .mini-grid{grid-template-columns:1fr 1fr;} }
+  @media(max-width:560px){ .mini-grid{grid-template-columns:1fr;} }
+
+  /* FAQ */
+  details.faq{border-top:1px solid var(--line-strong); padding:18px 0;}
+  details.faq:last-of-type{border-bottom:1px solid var(--line-strong);}
+  details.faq summary{cursor:pointer; list-style:none; display:flex; justify-content:space-between; gap:24px; font-size:15.5px; color:var(--ink); font-weight:500;}
+  details.faq summary::-webkit-details-marker{display:none;}
+  details.faq summary .plus{font-family:'IBM Plex Mono',monospace; color:var(--blue); flex-shrink:0;}
+  details.faq[open] summary .plus{transform:rotate(45deg); display:inline-block;}
+  details.faq p{margin-top:13px; font-size:13.5px; color:var(--ink-dim); line-height:1.7; max-width:760px;}
+
+  /* CTA FOOTER */
+  .final-cta{text-align:center; padding:130px 0 96px; background:var(--panel); border-top:1.5px solid var(--ink); border-bottom:1.5px solid var(--ink);}
+  .final-cta h2{font-size:clamp(28px,4.4vw,48px); max-width:760px; margin:0 auto;}
+  .final-cta .lead{margin:22px auto 0;}
+  .final-cta .hero-cta{justify-content:center; margin-top:36px;}
+
+  footer{padding:44px 0; font-size:12.5px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace;}
+  .foot-row{display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px;}
+  .foot-row a:hover{color:var(--blue);}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<header>
+  <div class="wrap navrow">
+    <div class="logo">NADZORRO ADVISORY<span class="stamp-dot"></span></div>
+    <nav class="links">
+      <a href="#directions"><span class="uk">01 Аудит</span><span class="en">01 Audit</span></a>
+      <a href="#about"><span class="uk">02 Хто ми</span><span class="en">02 Who we are</span></a>
+      <a href="#advisory"><span class="uk">03 Advisory</span><span class="en">03 Advisory</span></a>
+      <a href="#cases"><span class="uk">04 Кейси</span><span class="en">04 Cases</span></a>
+      <a href="#faq">05 FAQ</a>
+    </nav>
+    <div class="nav-right">
+      <button class="lang-btn" id="langToggle">EN</button>
+      <a class="btn" href="#contact"><span class="uk">Зв'язатись</span><span class="en">Get in touch</span></a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <div>
+        <div class="file-id"><span class="dash"></span><span class="uk">Досьє № NZ-2026 · CC2–CC3</span><span class="en">Dossier No. NZ-2026 · CC2–CC3</span></div>
+        <h1>
+          <span class="uk">Незалежний інженерний радник з управління <em>технічними ризиками</em> нерухомості</span>
+          <span class="en">Independent engineering advisor for real‑estate <em>technical risk</em> management</span>
+        </h1>
+        <p class="hero-sub">
+          <span class="uk">Супровід інвестиційних проєктів, технічний аудит та консалтинг для власників, інвесторів, девелоперів та забудовників нерухомості.</span>
+          <span class="en">Investment-project support, technical audit and consulting for property owners, investors, developers and builders.</span>
+        </p>
+        <div class="hero-cta">
+          <a class="btn" href="#directions"><span class="uk">Обрати аудит</span><span class="en">Choose an audit</span></a>
+          <a class="btn btn-ghost" href="#contact"><span class="uk">Отримати консультацію</span><span class="en">Request a consultation</span></a>
+        </div>
+      </div>
+      <div class="stamp">
+        <span><span class="uk">ВЕРИФІКОВАНО</span><span class="en">VERIFIED</span></span>
+        <span style="margin-top:4px;">ЄДЕССБ</span>
+      </div>
+    </div>
+
+    <div class="blueprint-panel reg">
+      <div class="rc1"></div><div class="rc2"></div>
+      <div class="bp-item">
+        <div class="bp-val">$10M+</div>
+        <div class="bp-label"><span class="uk">під наглядом</span><span class="en">under oversight</span></div>
+      </div>
+      <div class="bp-item">
+        <div class="bp-val">1000+</div>
+        <div class="bp-label"><span class="uk">обстежених об'єктів</span><span class="en">objects surveyed</span></div>
+      </div>
+      <div class="bp-item">
+        <div class="bp-val">25</div>
+        <div class="bp-label"><span class="uk">років практики ядра команди</span><span class="en">years, core team practice</span></div>
+      </div>
+      <div class="bp-item">
+        <div class="bp-val">100+</div>
+        <div class="bp-label"><span class="uk">років — горизонт прогнозу</span><span class="en">years — forecast horizon</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIRECTIONS -->
+<section id="directions" class="tight">
+  <div class="wrap">
+    <div class="file-id"><span class="dash"></span><span class="uk">Напрямки аудиту</span><span class="en">Audit tracks</span></div>
+    <h2 style="font-size:clamp(26px,3.4vw,40px); max-width:680px;">
+      <span class="uk">Оберіть напрямок, що відповідає вашій ситуації</span><span class="en">Choose the track that matches your situation</span>
+    </h2>
+    <div class="card-grid">
+      <div class="dcard"><span class="num">FIG. 01</span><h3>STRESS-TEST</h3><p><span class="uk">3–5 днів інтенсивного аудиту бізнес-моделі та технічного стану для швидкого рішення.</span><span class="en">3–5 days of intensive business-model and technical-condition audit for a fast decision.</span></p></div>
+      <div class="dcard"><span class="num">FIG. 02</span><h3>TDD</h3><p><span class="uk">Глибоке інженерне обстеження перед купівлею чи реконструкцією великих об'єктів.</span><span class="en">A deep engineering review before acquiring or reconstructing large assets.</span></p></div>
+      <div class="dcard"><span class="num">FIG. 03</span><h3>CRISIS MGMT</h3><p><span class="uk">Вихід з операційного хаосу, стабілізація конструкцій та юридична фіксація стану.</span><span class="en">Exit from operational chaos, structural stabilisation and legal fixation of status.</span></p></div>
+      <div class="dcard"><span class="num">FIG. 04</span><h3>PROJECT CONTROL</h3><p><span class="uk">Незалежний нагляд, контроль бюджетів та повернення суб'єктності інвестору.</span><span class="en">Independent oversight, budget control, restoring agency to the investor.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="hairline"></div></div>
+
+<!-- WHY -->
+<section id="why">
+  <div class="wrap split">
+    <div>
+      <div class="file-id"><span class="dash"></span><span class="uk">Позиція</span><span class="en">Position</span></div>
+      <h2 style="font-size:clamp(24px,3vw,36px);"><span class="uk">Чому незалежний радник?</span><span class="en">Why an independent advisor?</span></h2>
+      <p class="lead" style="margin-top:18px;">
+        <span class="uk">У проєктах СС2–СС3 інвестор часто стає заручником кругової лояльності учасників будівництва. Проєкти втрачають ефективність через порушення системної логіки будівлі.</span>
+        <span class="en">In CC2–CC3 projects, the investor often becomes hostage to the mutual loyalty of construction participants. Projects fail not because of the market, but because the building's systemic logic is broken.</span>
+      </p>
+      <ul class="bullets">
+        <li><span class="tick">→</span><span><span class="uk">Незалежна оцінка активу</span><span class="en">Independent asset assessment</span></span></li>
+        <li><span class="tick">→</span><span><span class="uk">Прямий звіт для власника, без фільтрів менеджменту</span><span class="en">A direct report to the owner, unfiltered by management</span></span></li>
+        <li><span class="tick">→</span><span><span class="uk">Виявлення ризиків на ранніх етапах</span><span class="en">Risk identification at the earliest stages</span></span></li>
+      </ul>
+    </div>
+    <div style="display:flex; align-items:center;">
+      <blockquote>
+        <span class="uk">«Моя роль — забезпечити автономний аудит, вільний від конфлікту інтересів. Я виводжу капітал із зони емоційного тиску в простір рішень, що базуються на розрахунках».</span>
+        <span class="en">"My role is to deliver an autonomous audit, free of conflicts of interest — moving capital out of emotional pressure and into decisions based on calculation."</span>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section class="tight" style="background:var(--panel); border-top:1.5px solid var(--ink); border-bottom:1.5px solid var(--ink);">
+  <div class="wrap">
+    <div class="file-id"><span class="dash"></span><span class="uk">Таблиця рівнів</span><span class="en">Engagement table</span></div>
+    <h2 style="font-size:clamp(24px,3vw,36px); max-width:680px;">
+      <span class="uk">Рівень аудиту відповідає масштабу проєкту</span><span class="en">Audit depth matched to project scale</span>
+    </h2>
+    <table>
+      <thead><tr><th><span class="uk">Інвестиції</span><span class="en">Investment</span></th><th><span class="uk">Рівень аудиту</span><span class="en">Audit level</span></th><th><span class="uk">Фокус та результат</span><span class="en">Focus &amp; outcome</span></th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="invest">$500K – $2M</td>
+          <td><strong>STRESS-TEST</strong></td>
+          <td><span class="uk">Конструктивна безпека та ліквідність. Швидка діагностика життєздатності бізнес-моделі.</span><span class="en">Structural safety and liquidity. Fast diagnostics of business-model viability.</span></td>
+        </tr>
+        <tr>
+          <td class="invest">$2M – $5M</td>
+          <td><strong>TDD</strong></td>
+          <td><span class="uk">Інженерні мережі, прихований знос, юридична чистота. Повний звіт перед купівлею.</span><span class="en">Engineering systems, hidden wear, legal cleanliness. Full report before acquisition.</span></td>
+        </tr>
+        <tr>
+          <td class="invest">$5M – $10M+</td>
+          <td><strong>CRISIS &amp; CONTROL</strong></td>
+          <td><span class="uk">Управління життєвим циклом об'єкта найвищої складності (CC3).</span><span class="en">Lifecycle management for the most complex (CC3) assets.</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section>
+  <div class="wrap">
+    <div class="file-id"><span class="dash"></span><span class="uk">Процес</span><span class="en">Process</span></div>
+    <h2 style="font-size:clamp(24px,3vw,36px);"><span class="uk">4 етапи співпраці</span><span class="en">4 stages of engagement</span></h2>
+    <div class="process-row">
+      <div class="pstep"><span class="pnum">STEP 01</span><h4><span class="uk">Запит і кваліфікація</span><span class="en">Intake &amp; qualification</span></h4><p><span class="uk">Визначення масштабу та класу наслідків об'єкта.</span><span class="en">Defining the scope and consequence class.</span></p></div>
+      <div class="pstep"><span class="pnum">STEP 02</span><h4><span class="uk">Інструментальний аудит</span><span class="en">Instrumental audit</span></h4><p><span class="uk">VT / UT / MT діагностика, лабораторія, 3D-сканування.</span><span class="en">VT / UT / MT diagnostics, lab analysis, 3D scanning.</span></p></div>
+      <div class="pstep"><span class="pnum">STEP 03</span><h4><span class="uk">Фінансова трансформація</span><span class="en">Financial translation</span></h4><p><span class="uk">Дефекти перетворюються на розрахунок CAPEX.</span><span class="en">Defects converted into a CAPEX calculation.</span></p></div>
+      <div class="pstep"><span class="pnum">STEP 04</span><h4><span class="uk">Протокол визначеності</span><span class="en">Verdict &amp; protocol</span></h4><p><span class="uk">Висновок — підстава для рішення чи реєстрації в ЄДЕССБ.</span><span class="en">A verdict — grounds for a decision or state registration.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote-section">
+  <div class="wrap">
+    <blockquote>
+      <span class="uk">«Фізика не є предметом компромісу. Якщо об'єкт технічно високоризикований — я скажу про це прямо, захищаючи ваші інвестиції, а не чиюсь вигоду».</span>
+      <span class="en">"Physics is not negotiable. If an asset is technically high-risk, I will say so directly — protecting your investment, not anyone's convenience."</span>
+    </blockquote>
+    <cite>— Ганна Гревцова <span class="uk">/ Засновниця NADZORRO ADVISORY</span><span class="en">/ Founder, NADZORRO ADVISORY</span></cite>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <div class="file-id"><span class="dash"></span><span class="uk">Хто ми</span><span class="en">Who we are</span></div>
+    <div class="about-top">
+      <div class="photo-block reg"><div class="rc1"></div><div class="rc2"></div><span class="uk">Фото: Ганна Гревцова</span><span class="en">Photo: Hanna Grevtsova</span></div>
+      <div>
+        <div class="about-name"><span class="uk">Незалежний інженерний радник</span><span class="en">Independent Engineering Advisor</span></div>
+        <h2 style="font-size:clamp(26px,3.2vw,38px);">Ганна Гревцова</h2>
+        <p class="pull">
+          <span class="uk">«У світі капітальних інвестицій прибуток — похідна від безпеки та технологічної точності. Безпека об'єкта та захист вашого капіталу — єдиний пріоритет».</span>
+          <span class="en">"In capital investment, profit is a derivative of safety and technical precision. The safety of the asset and protection of your capital are the only priority."</span>
+        </p>
+        <div class="timeline">
+          <div class="trow"><div class="yr">2006</div><p><span class="uk">«АК Інжиніринг» (Донецьк) — управління інвестиційно-будівельними проєктами СС3.</span><span class="en">AK Engineering (Donetsk) — managing CC3-class investment projects.</span></p></div>
+          <div class="trow"><div class="yr">2014</div><p><span class="uk">Початок незалежного будівельного аудиту та інженерного арбітражу.</span><span class="en">Began independent construction audit and engineering arbitration.</span></p></div>
+          <div class="trow"><div class="yr">2017</div><p><span class="uk">Заснувала NADZORRO — інженерну групу з технічного обстеження будівель.</span><span class="en">Founded NADZORRO — an engineering group for structural surveys.</span></p></div>
+          <div class="trow"><div class="yr">2021</div><p><span class="uk">Радник з реставрації спадщини при Міністерстві культури України.</span><span class="en">Advisor on heritage restoration for Ukraine's Ministry of Culture.</span></p></div>
+          <div class="trow"><div class="yr">2026</div><p><span class="uk">Відкрила NADZORRO ADVISORY як незалежний інженерний радник.</span><span class="en">Launched NADZORRO ADVISORY as an independent engineering advisor.</span></p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="core-grid">
+      <div class="core-card">
+        <h4><span class="uk">Олег та Віталій Гревцови — експертне ядро</span><span class="en">Oleh &amp; Vitaliy Grevtsov — the expert core</span></h4>
+        <p><span class="uk">25 років практики. Обстежили понад 1000+ об'єктів. Кожен звіт проходить колегіальну верифікацію — ефект дослідницького інституту замість суб'єктивної оцінки.</span><span class="en">25 years of practice. 1000+ objects surveyed. Every report undergoes collegial verification — the effect of a research institute, not a single subjective opinion.</span></p>
+      </div>
+      <div class="core-card">
+        <h4><span class="uk">Чому вони бачать те, що ігнорують інші</span><span class="en">Why they see what others miss</span></h4>
+        <p><span class="uk">Аналізують будівлю в динаміці: деформаційний слід, накопичену втому конструкцій. Діагностують поза межами ДБН — прогноз на 100+ років вперед.</span><span class="en">They analyse a building in motion: its deformation trace, accumulated fatigue. They diagnose beyond standard codes — forecasting 100+ years ahead.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CODEX -->
+<section id="codex" class="tight" style="background:var(--ink); color:var(--paper);">
+  <div class="wrap">
+    <div class="codex-top">
+      <div class="file-id" style="justify-content:center; color:#c9a13b;"><span class="dash" style="background:#c9a13b;"></span><span class="uk">Кодекс NADZORRO</span><span class="en">The NADZORRO codex</span></div>
+      <blockquote style="color:var(--paper);">
+        <span class="uk">«Ми не контролюємо. Ми синхронізуємо проєкт із законами фізики та архітектурною логікою».</span>
+        <span class="en">"We do not control. We synchronise the project with the laws of physics and architectural logic."</span>
+      </blockquote>
+    </div>
+    <div class="codex-grid" style="border-color:#3c392c;">
+      <div class="ccard" style="background:var(--ink); border-color:#3c392c;">
+        <span class="ctag" style="color:#c9a13b;">Object-Centric</span>
+        <h4 style="color:var(--paper);"><span class="uk">Об'єктно-центричний підхід</span><span class="en">Object-centric approach</span></h4>
+        <p style="color:#b7b29e;"><span class="uk">Пріоритет — довгострокова цінність будівлі. Транслюємо фактичний стан, не беручи участі у суперечках сторін.</span><span class="en">Priority: the building's long-term value. We report actual condition, never taking sides.</span></p>
+      </div>
+      <div class="ccard" style="background:var(--ink); border-color:#3c392c;">
+        <span class="ctag" style="color:#c9a13b;">Life Cycle</span>
+        <h4 style="color:var(--paper);"><span class="uk">Управління життєвим циклом</span><span class="en">Life-cycle integrity</span></h4>
+        <p style="color:#b7b29e;"><span class="uk">Мета — мінімізація ентропії. Дивимось на об'єкт крізь призму 100-річного циклу.</span><span class="en">The goal is minimising entropy. We view assets through a 100-year cycle.</span></p>
+      </div>
+      <div class="ccard" style="background:var(--ink); border-color:#3c392c;">
+        <span class="ctag" style="color:#c9a13b;">Equilibrium</span>
+        <h4 style="color:var(--paper);"><span class="uk">Стабілізація системних відхилень</span><span class="en">Systemic equilibrium</span></h4>
+        <p style="color:#b7b29e;"><span class="uk">Не шукаємо «правду». Повертаємо систему у розрахунковий стан.</span><span class="en">We don't seek "the truth." We return the system to its calculated state.</span></p>
+      </div>
+      <div class="ccard" style="background:var(--ink); border-color:#3c392c;">
+        <span class="ctag" style="color:#c9a13b;">Self-Organised</span>
+        <h4 style="color:var(--paper);"><span class="uk">Автономна експертиза</span><span class="en">Self-organised expertise</span></h4>
+        <p style="color:#b7b29e;"><span class="uk">Висновки на основі інструментальних даних — без «зручності» для сторін.</span><span class="en">Conclusions based on instrumental data — never adjusted for convenience.</span></p>
+      </div>
+      <div class="ccard" style="background:var(--ink); border-color:#3c392c;">
+        <span class="ctag" style="color:#c9a13b;">Resonant</span>
+        <h4 style="color:var(--paper);"><span class="uk">Резонансне партнерство</span><span class="en">Resonant partnership</span></h4>
+        <p style="color:#b7b29e;"><span class="uk">Свідомий вибір на користь гармонії та безпеки СС3.</span><span class="en">A conscious choice for harmony and CC3 safety.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ADVISORY -->
+<section id="advisory">
+  <div class="wrap">
+    <div class="file-id"><span class="dash"></span>ADVISORY</div>
+    <h2 style="font-size:clamp(24px,3vw,36px); max-width:760px;">
+      <span class="uk">Інженерний контур безпеки на кожному етапі</span><span class="en">An engineering safety circuit, at every stage</span>
+    </h2>
+    <div style="margin-top:44px;">
+      <details class="stage" open>
+        <summary><span><span class="uk">01 — На старті проєкту</span><span class="en">01 — At project launch</span></span><span class="plus">+</span></summary>
+        <ul class="stage-body">
+          <li><span class="uk">Аналіз обмежень земельної ділянки</span><span class="en">Site constraint analysis</span></li>
+          <li><span class="uk">Інженерний фільтр концепції (ТЕО)</span><span class="en">Engineering filter for the concept</span></li>
+          <li><span class="uk">Аналіз реалістичності бюджету</span><span class="en">Budget realism analysis</span></li>
+          <li><span class="uk">Формування технічного завдання</span><span class="en">Drafting the technical brief</span></li>
+        </ul>
+      </details>
+      <details class="stage">
+        <summary><span><span class="uk">02 — На етапі проєктування</span><span class="en">02 — During design</span></span><span class="plus">+</span></summary>
+        <ul class="stage-body">
+          <li><span class="uk">Стрес-тест конструктивних рішень</span><span class="en">Stress-testing structural decisions</span></li>
+          <li><span class="uk">Оптимізація балансу економіки і надійності</span><span class="en">Balancing cost and reliability</span></li>
+          <li><span class="uk">Моделювання поведінки основи та конструкцій</span><span class="en">Modelling foundation and structural behaviour</span></li>
+          <li><span class="uk">Протоколи запобігання обваленню</span><span class="en">Protocols preventing collapse</span></li>
+        </ul>
+      </details>
+      <details class="stage">
+        <summary><span><span class="uk">03 — На етапі купівлі</span><span class="en">03 — During acquisition</span></span><span class="plus">+</span></summary>
+        <ul class="stage-body">
+          <li><span class="uk">Technical Due Diligence</span><span class="en">Technical Due Diligence</span></li>
+          <li><span class="uk">Аудит «чистоти» активу та документації</span><span class="en">Asset and documentation "cleanliness" audit</span></li>
+          <li><span class="uk">Оцінка модернізаційного потенціалу</span><span class="en">Modernisation potential assessment</span></li>
+          <li><span class="uk">Прогнозування CAPEX</span><span class="en">CAPEX forecasting</span></li>
+        </ul>
+      </details>
+      <details class="stage">
+        <summary><span><span class="uk">04 — На етапі реконструкції</span><span class="en">04 — During reconstruction</span></span><span class="plus">+</span></summary>
+        <ul class="stage-body">
+          <li><span class="uk">Project Control: моніторинг несучої здатності</span><span class="en">Project Control: monitoring load capacity</span></li>
+          <li><span class="uk">Управління змінами при розкритті вузлів</span><span class="en">Change management on uncovered conditions</span></li>
+          <li><span class="uk">Контроль якості підсилення</span><span class="en">Quality control of reinforcement</span></li>
+          <li><span class="uk">Моніторинг деформацій</span><span class="en">Deformation monitoring</span></li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="clients">
+      <div class="label"><span class="uk">Нам довіряють девелопери та забудовники</span><span class="en">Trusted by developers and builders</span></div>
+      <div class="client-row">
+        <div class="chip">UTG Offices</div>
+        <div class="chip"><span class="uk">Український Девелопмент</span><span class="en">Ukrainian Development</span></div>
+        <div class="chip">Dragon Evolution</div>
+        <div class="chip">Nottingham</div>
+        <div class="chip">IBK Obriy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TDD -->
+<section class="tight" style="background:var(--panel); border-top:1.5px solid var(--ink); border-bottom:1.5px solid var(--ink);">
+  <div class="wrap">
+    <div class="file-id"><span class="dash"></span>TECHNICAL DUE DILIGENCE</div>
+    <h2 style="font-size:clamp(24px,3vw,36px); max-width:720px;">
+      <span class="uk">Встановлення істинного стану активу</span><span class="en">Establishing the true condition of the asset</span>
+    </h2>
+    <p class="lead" style="margin-top:18px;">
+      <span class="uk">Придбання об'єкта класу СС2–СС3 — це прийняття на баланс фізичної та фінансової відповідальності. Ми не оцінюємо привабливість фасаду.</span>
+      <span class="en">Acquiring a CC2–CC3 asset means taking on physical and financial responsibility. We don't assess the facade's appeal.</span>
+    </p>
+    <div class="tdd-grid">
+      <div class="tcard"><span class="tnum">A</span><h4><span class="uk">Технічний аудит</span><span class="en">Structural audit</span></h4><p><span class="uk">Несуча здатність, відповідність СС2/СС3, аудит мереж.</span><span class="en">Load capacity, CC2/CC3 compliance, systems audit.</span></p></div>
+      <div class="tcard"><span class="tnum">B</span><h4><span class="uk">Фінансовий аудит CAPEX</span><span class="en">Financial CAPEX audit</span></h4><p><span class="uk">Невідкладні витрати та TCO на 5–10 років.</span><span class="en">Urgent costs and 5–10 year TCO.</span></p></div>
+      <div class="tcard"><span class="tnum">C</span><h4><span class="uk">Протокол визначеності</span><span class="en">Independent verdict</span></h4><p><span class="uk">Вага в переговорах про ціну активу.</span><span class="en">Weight in price negotiations.</span></p></div>
+    </div>
+    <div class="callout">
+      <div class="big">4D</div>
+      <p><span class="uk">NADZORRO ADVISORY повертає здатність бачити об'єкт у 4-х вимірах, де четвертий — час, що вичерпує ресурс конструкцій.</span><span class="en">NADZORRO ADVISORY restores the ability to see an asset in four dimensions — the fourth being time, which depletes structural resource.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="wrap">
+    <div class="file-id"><span class="dash"></span><span class="uk">Інструментальне обстеження</span><span class="en">Instrumental survey</span></div>
+    <h2 style="font-size:clamp(24px,3vw,36px); max-width:680px;">
+      <span class="uk">Власна лабораторія неруйнівного контролю</span><span class="en">An in-house non-destructive testing laboratory</span>
+    </h2>
+    <div class="tools-grid">
+      <div class="tool-card"><span class="code">VT</span><h4><span class="uk">Візуально-оптичний контроль</span><span class="en">Visual-optical inspection</span></h4><p><span class="uk">Локалізує до 70–80% деструктивних процесів на поверхні.</span><span class="en">Locates up to 70–80% of surface-level deterioration.</span></p></div>
+      <div class="tool-card"><span class="code">UT</span><h4><span class="uk">Ультразвукова дефектоскопія</span><span class="en">Ultrasonic flaw detection</span></h4><p><span class="uk">Фактична міцність бетону без руйнівного відбору кернів.</span><span class="en">Actual concrete strength, no destructive core sampling.</span></p></div>
+      <div class="tool-card"><span class="code">MT</span><h4><span class="uk">Магнітний контроль</span><span class="en">Magnetic testing</span></h4><p><span class="uk">Виявляє загрозу руйнування металокаркаса до перших тріщин.</span><span class="en">Detects steel-frame failure risk before the first visible crack.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CASES -->
+<section id="cases" class="tight" style="background:var(--panel); border-top:1.5px solid var(--ink); border-bottom:1.5px solid var(--ink);">
+  <div class="wrap">
+    <div class="file-id"><span class="dash"></span><span class="uk">Кейси</span><span class="en">Case studies</span></div>
+    <h2 style="font-size:clamp(24px,3vw,36px);"><span class="uk">Робота в зонах найвищої невизначеності</span><span class="en">Work in zones of the highest uncertainty</span></h2>
+
+    <div class="case-card">
+      <div class="case-meta">
+        <span class="tag">СС3 · NATIONAL HERITAGE</span>
+        <h3><span class="uk">Костел Святого Миколая</span><span class="en">St. Nicholas Cathedral</span></h3>
+        <div class="facts">
+          <span><span class="uk">Київ · 1896 р.</span><span class="en">Kyiv · built 1896</span></span>
+          <span><span class="uk">18 робочих днів</span><span class="en">18 working days</span></span>
+        </div>
+      </div>
+      <div class="case-body">
+        <p><span class="uk">Після пожежі 2021 року проєкт відновлення увійшов до президентської програми «Велика реставрація». NADZORRO стала частиною стратегічного центру прийняття рішень.</span><span class="en">After the 2021 fire, restoration was placed under the "Great Restoration" presidential programme. NADZORRO became part of the strategic decision-making centre.</span></p>
+        <p><span class="uk">Лазерне 3D-сканування, лабораторний аналіз металів органу, висотна діагностика склепінь. Якість підтвердив радник гендиректора ЮНЕСКО.</span><span class="en">Laser 3D scanning, lab analysis of organ metals, high-altitude vault diagnostics. Quality confirmed by an adviser to the UNESCO Director-General.</span></p>
+      </div>
+    </div>
+
+    <div class="case-card">
+      <div class="case-meta">
+        <span class="tag">СС3 · SEISMIC ZONE 7</span>
+        <h3><span class="uk">Готельний комплекс, Одеса</span><span class="en">Hotel complex, Odesa</span></h3>
+        <div class="facts">
+          <span><span class="uk">14 поверхів · 1990 р.</span><span class="en">14 floors · built 1990</span></span>
+          <span><span class="uk">Сейсмічність 7 балів</span><span class="en">Seismicity 7 points</span></span>
+        </div>
+      </div>
+      <div class="case-body">
+        <p><span class="uk">Буріння двох свердловин на 30 м виявило порожнини в ракушняку. Попередні «посилення» виявились деструктивними.</span><span class="en">Drilling two 30 m boreholes revealed voids in the shell-rock foundation. Earlier "reinforcements" proved destructive.</span></p>
+        <p><span class="uk">Будівля досягла межі придатності (SLS) — III категорія стану. Стратегія ін'єкційного зміцнення ґрунтів без демонтажу. Безпечна експлуатація гарантована до <strong>2090 року</strong>.</span><span class="en">The building reached its serviceability limit (SLS) — condition category III. A soil-injection strategy avoided dismantling. Safe operation now guaranteed through <strong>2090</strong>.</span></p>
+      </div>
+    </div>
+
+    <div class="mini-grid">
+      <div class="mini"><h5>PREFAB</h5><p><span class="uk">Завод, Бровари · реконструкція 2021</span><span class="en">Plant, Brovary · reconstruction 2021</span></p></div>
+      <div class="mini"><h5>UNIVERSUM HALL</h5><p><span class="uk">Павільйон ВДНГ №6 · СС3</span><span class="en">VDNH Pavilion 6 · CC3</span></p></div>
+      <div class="mini"><h5><span class="uk">КОМФОРТ-ТАУН</span><span class="en">COMFORT TOWN</span></h5><p><span class="uk">Аудит зливової системи</span><span class="en">Stormwater system audit</span></p></div>
+      <div class="mini"><h5><span class="uk">АБЗ</span><span class="en">ASPHALT PLANT</span></h5><p><span class="uk">Аудит аварії, 2026</span><span class="en">Incident audit, 2026</span></p></div>
+      <div class="mini">ГАЛАФАРМ<p><span class="uk">Оцінка збитків після пожежі</span><span class="en">Fire damage assessment</span></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="file-id"><span class="dash"></span>FAQ</div>
+    <h2 style="font-size:clamp(24px,3vw,36px); margin-bottom:8px;"><span class="uk">Поширені запитання</span><span class="en">Frequently asked questions</span></h2>
+    <div style="margin-top:36px;">
+      <details class="faq" open>
+        <summary><span><span class="uk">Чому незалежний інженерний радник?</span><span class="en">Why an independent advisor?</span></span><span class="plus">+</span></summary>
+        <p><span class="uk">Незалежність означає експертизу, яку неможливо схилити до компромісу на користь третіх сторін.</span><span class="en">Independence means expertise that cannot be swayed toward a third party's interest.</span></p>
+      </details>
+      <details class="faq">
+        <summary><span><span class="uk">Хто безпосередньо працює над проєктом?</span><span class="en">Who actually works on the project?</span></span><span class="plus">+</span></summary>
+        <p><span class="uk">«Інженерний підрозділ швидкого реагування», що спеціалізується на стабілізації об'єктів СС2/СС3.</span><span class="en">A "rapid-response engineering unit" specialising in stabilising CC2/CC3 assets.</span></p>
+      </details>
+      <details class="faq">
+        <summary><span><span class="uk">Чим звіт відрізняється від стандартного висновку?</span><span class="en">How does your report differ from a standard survey?</span></span><span class="plus">+</span></summary>
+        <p><span class="uk">Комплексна оцінка безпеки на весь життєвий цикл будівлі (60–100 років).</span><span class="en">A comprehensive safety assessment for the building's full lifecycle (60–100 years).</span></p>
+      </details>
+      <details class="faq">
+        <summary><span><span class="uk">Чому вартість не залежить від площі?</span><span class="en">Why doesn't the fee depend on area?</span></span><span class="plus">+</span></summary>
+        <p><span class="uk">Вартість визначається складністю завдання та обсягом усуненої невизначеності.</span><span class="en">The fee is set by task complexity and the uncertainty removed.</span></p>
+      </details>
+      <details class="faq">
+        <summary><span><span class="uk">Яку юридичну вагу має ваш висновок?</span><span class="en">What legal weight does your verdict carry?</span></span><span class="plus">+</span></summary>
+        <p><span class="uk">Звіти вносяться до ЄДЕССБ — офіційний документ для ДІАМ, судів та страхових компаній.</span><span class="en">Reports are entered into the state register — official for regulators, courts and insurers.</span></p>
+      </details>
+      <details class="faq">
+        <summary><span><span class="uk">Чи є обмеження на кількість проєктів?</span><span class="en">Is there a project limit?</span></span><span class="plus">+</span></summary>
+        <p><span class="uk">Так, лише декілька знакових об'єктів на рік — це персональна, а не масова експертиза.</span><span class="en">Yes — only a few landmark projects per year. This is personal, not mass-market expertise.</span></p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section id="contact" class="final-cta">
+  <div class="wrap">
+    <div class="file-id" style="justify-content:center;"><span class="dash"></span><span class="uk">Готові до прямого аудиту?</span><span class="en">Ready for a direct audit?</span></div>
+    <h2><span class="uk">Забезпечте стійкість вашого капіталу</span><span class="en">Secure the resilience of your capital</span></h2>
+    <p class="lead"><span class="uk">NADZORRO ADVISORY — інженерно-консалтингова компанія. Київ, Україна · CC2–CC3.</span><span class="en">NADZORRO ADVISORY — an engineering consultancy. Kyiv, Ukraine · CC2–CC3.</span></p>
+    <div class="hero-cta">
+      <a class="btn" href="https://wa.me/380960565292" target="_blank"><span class="uk">Зв'язатись в WhatsApp</span><span class="en">Contact on WhatsApp</span></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-row">
+    <div>NADZORRO ADVISORY © 2026</div>
+    <div style="display:flex; gap:24px;">
+      <a href="mailto:info@nadzorro.com">info@nadzorro.com</a>
+      <a href="tel:+380960565292">+38 (096) 056-52-92</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const html = document.documentElement;
+  const btn = document.getElementById('langToggle');
+  btn.addEventListener('click', () => {
+    const next = html.getAttribute('data-lang') === 'uk' ? 'en' : 'uk';
+    html.setAttribute('data-lang', next);
+    html.setAttribute('lang', next);
+    btn.textContent = next === 'uk' ? 'EN' : 'UA';
+  });
+</script>
+</body>
+</html>
